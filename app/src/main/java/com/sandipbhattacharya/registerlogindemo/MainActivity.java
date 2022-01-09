@@ -10,9 +10,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -24,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
     private String email, password;
+//    private String URL = "http://localhost/notepanion/login.php";
+
+    // http://10.0.2.2:xxxx is the IP that is a special alias to your host loopback interface (127.0.0.1 on your dev machine)
+    // Reference: https://stackoverflow.com/questions/54810579/com-android-volley-noconnectionerror-java-net-connectexception-connection-refu
     private String URL = "http://10.0.2.2/login/login.php";
 
     @Override
@@ -54,7 +63,24 @@ public class MainActivity extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(MainActivity.this, error.toString().trim(), Toast.LENGTH_SHORT).show();
+
+                    String message = null;
+                    if (error instanceof NetworkError) {
+                        message = "Cannot connect to Internet...Please check your connection!";
+                    } else if (error instanceof ServerError) {
+                        message = "The server could not be found. Please try again after some time!!";
+                    } else if (error instanceof AuthFailureError) {
+                        message = "Cannot connect to Internet...Please check your connection!";
+                    } else if (error instanceof ParseError) {
+                        message = "Parsing error! Please try again after some time!!";
+                    } else if (error instanceof NoConnectionError) {
+                        message = "Cannot connect to Internet...Please check your connection!";
+                    } else if (error instanceof TimeoutError) {
+                        message = "Connection TimeOut! Please check your internet connection.";
+                    }
+                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                    Log.i("MESSAGE", message);
+                    Log.i("ERROR", error.toString());
                 }
             }){
                 @Override
